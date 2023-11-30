@@ -1,0 +1,36 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: commit-tt
+spec:
+  params:
+    - name: gitrepositoryurl
+      description: The git repository url
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: tekton-deploy-
+      spec:
+        pipelineRef:
+          name: tekton-deploy
+        params:
+          - name: repo-url
+            value: $(tt.params.gitrepositoryurl)
+          - name: deployment-name
+            value: tekton-deployment
+          - name: image
+            value: carlosaol/tekton-lab-app
+          - name: docker-username
+            value: carlosaol
+          - name: docker-password
+            value: dckr_pat_VXZqdgWe77psoZUUGF6huvzg9g8
+        workspaces:
+          - name: source
+            volumeClaimTemplate:
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 1Gi
